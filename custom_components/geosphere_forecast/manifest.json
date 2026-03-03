@@ -1,0 +1,10 @@
+{
+  "domain": "geosphere_forecast",
+  "name": "GeoSphere Forecast",
+  "version": "1.0.0",
+  "documentation": "https://geosphere.at/de#tab=chart&point_id=1372",
+  "codeowners": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "requirements": []
+}

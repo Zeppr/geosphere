@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GeoSphere Vorhersage",
+        "description": "Konfiguriere eine Point-ID fuer die Tagesvorhersage.",
+        "data": {
+          "point_id": "Point-ID",
+          "days": "Anzahl Tage",
+          "scan_interval_minutes": "Aktualisierungsintervall (Minuten)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Diese Point-ID ist bereits konfiguriert."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GeoSphere Forecast",
+        "description": "Configure a point id for daily forecast data.",
+        "data": {
+          "point_id": "Point ID",
+          "days": "Number of days",
+          "scan_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This point id is already configured."
+    }
+  }
+}
