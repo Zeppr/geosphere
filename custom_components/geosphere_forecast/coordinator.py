@@ -66,6 +66,7 @@ class GeoSphereForecastCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         "datetime": item.get("time"),
                         "high": item.get("high"),
                         "low": item.get("low"),
+                        "rr": item.get("rr", 0),
                         "symbol": item.get("symbol"),
                         "warning": item.get("warning"),
                     }
@@ -125,7 +126,7 @@ class GeoSphereForecastCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 continue
             day_key = ts[:10]
             bucket = grouped.setdefault(
-                day_key, {"high": None, "low": None, "symbols": [], "warning": 0}
+                day_key, {"high": None, "low": None, "rr": 0.0, "symbols": [], "warning": 0}
             )
 
             temp = t2m[idx]
@@ -136,6 +137,10 @@ class GeoSphereForecastCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             symbol = sy[idx]
             if isinstance(symbol, int):
                 bucket["symbols"].append(symbol)
+
+            rain = rr[idx]
+            if isinstance(rain, (int, float)):
+                bucket["rr"] += float(rain)
 
         daily: list[dict[str, Any]] = []
         for day_key in sorted(grouped.keys())[: self._days]:
@@ -151,6 +156,7 @@ class GeoSphereForecastCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "datetime": day_key,
                     "high": bucket["high"],
                     "low": bucket["low"],
+                    "rr": round(bucket["rr"], 1),
                     "symbol": symbol,
                     "warning": 0,
                 }
