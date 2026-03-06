@@ -50,12 +50,12 @@ class GeosphereForecastCard extends HTMLElement {
         const low = this._formatTemp(day.low);
         const symbolCode = Number(day.symbol);
         const symbolText = this._symbolText(symbolCode);
-        const icon = this._symbolIcon(symbolCode);
+        const iconSvg = this._symbolSvg(symbolCode);
 
         return `
           <div class="day-col">
             <div class="day-title">${date}</div>
-            <ha-icon class="weather-icon" icon="${icon}"></ha-icon>
+            <div class="weather-icon" aria-hidden="true">${iconSvg}</div>
             <div class="temp-line"><span class="high">${high}</span> <span class="low">${low}</span></div>
             <div class="symbol-text">${symbolText}</div>
           </div>
@@ -76,7 +76,18 @@ class GeosphereForecastCard extends HTMLElement {
           background: var(--card-background-color);
         }
         .day-title { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
-        .weather-icon { --mdc-icon-size: 24px; color: var(--primary-color); margin-bottom: 3px; }
+        .weather-icon {
+          width: 24px;
+          height: 24px;
+          margin: 0 auto 3px;
+          color: var(--primary-color);
+        }
+        .weather-icon svg {
+          width: 24px;
+          height: 24px;
+          display: block;
+          overflow: visible;
+        }
         .temp-line { font-size: 12px; margin-bottom: 2px; white-space: nowrap; }
         .high { font-weight: 700; margin-right: 4px; }
         .low { opacity: 0.8; }
@@ -87,7 +98,7 @@ class GeosphereForecastCard extends HTMLElement {
           .days-grid { gap: 3px; }
           .day-col { padding: 5px 2px; }
           .day-title { font-size: 10px; }
-          .weather-icon { --mdc-icon-size: 20px; }
+          .weather-icon, .weather-icon svg { width: 20px; height: 20px; }
           .temp-line { font-size: 11px; }
           .symbol-text { font-size: 9px; min-height: 20px; }
         }
@@ -110,43 +121,68 @@ class GeosphereForecastCard extends HTMLElement {
     return 5;
   }
 
-  _symbolIcon(code) {
-    // Material Design icon set mapping (compact and consistent in HA cards)
-    const map = {
-      1: "mdi:weather-sunny",
-      2: "mdi:weather-partly-cloudy",
-      3: "mdi:weather-partly-cloudy",
-      4: "mdi:weather-cloudy",
-      5: "mdi:weather-cloudy",
-      6: "mdi:weather-fog",
-      7: "mdi:weather-fog",
-      8: "mdi:weather-rainy",
-      9: "mdi:weather-rainy",
-      10: "mdi:weather-pouring",
-      11: "mdi:weather-snowy-rainy",
-      12: "mdi:weather-snowy-rainy",
-      13: "mdi:weather-snowy-rainy",
-      14: "mdi:weather-snowy",
-      15: "mdi:weather-snowy-heavy",
-      16: "mdi:weather-snowy-heavy",
-      17: "mdi:weather-rainy",
-      18: "mdi:weather-rainy",
-      19: "mdi:weather-pouring",
-      20: "mdi:weather-snowy-rainy",
-      21: "mdi:weather-snowy-rainy",
-      22: "mdi:weather-snowy-rainy",
-      23: "mdi:weather-snowy",
-      24: "mdi:weather-snowy",
-      25: "mdi:weather-snowy-heavy",
-      26: "mdi:weather-lightning-rainy",
-      27: "mdi:weather-lightning-rainy",
-      28: "mdi:weather-lightning",
-      29: "mdi:weather-lightning-rainy",
-      30: "mdi:weather-lightning-rainy",
-      31: "mdi:weather-lightning-rainy",
-      32: "mdi:weather-lightning-rainy",
-    };
-    return map[code] || "mdi:weather-cloudy-alert";
+  _symbolType(code) {
+    if ([1].includes(code)) return "sun";
+    if ([2, 3].includes(code)) return "partly";
+    if ([4, 5].includes(code)) return "cloud";
+    if ([6, 7].includes(code)) return "fog";
+    if ([8, 9, 17, 18].includes(code)) return "rain";
+    if ([10, 19].includes(code)) return "rain-heavy";
+    if ([11, 12, 13, 20, 21, 22].includes(code)) return "sleet";
+    if ([14, 23, 24].includes(code)) return "snow";
+    if ([15, 16, 25].includes(code)) return "snow-heavy";
+    if ([26, 27, 28, 29, 30, 31, 32].includes(code)) return "thunder";
+    return "cloud";
+  }
+
+  _symbolSvg(code) {
+    const type = this._symbolType(code);
+    const stroke = "currentColor";
+    const sun = `
+      <circle cx="12" cy="12" r="4.2" fill="none" stroke="${stroke}" stroke-width="1.8"/>
+      <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+    `;
+    const cloud = `
+      <path d="M7.2 17.5h9.7a3.4 3.4 0 0 0 .2-6.8 4.8 4.8 0 0 0-9.3-1.4 3 3 0 0 0-.6 0 3.6 3.6 0 1 0 0 7.2Z" fill="none" stroke="${stroke}" stroke-linejoin="round" stroke-width="1.8"/>
+    `;
+    const rainDrops = `
+      <path d="M9 19.2l-1 2M13 19.2l-1 2M17 19.2l-1 2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+    `;
+    const heavyRainDrops = `
+      <path d="M8 18.8l-1.2 2.8M12 18.8l-1.2 2.8M16 18.8l-1.2 2.8M20 18.8l-1.2 2.8" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+    `;
+    const snowFlakes = `
+      <path d="M9 20.2h2M10 19.2v2M14.5 20.2h2M15.5 19.2v2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.6"/>
+    `;
+    const thunder = `
+      <path d="M13.6 14.5h-2.2l1-3.3-2.8 4.5h2.2l-.9 2.8 2.7-4Z" fill="none" stroke="${stroke}" stroke-linejoin="round" stroke-width="1.8"/>
+    `;
+    const fog = `
+      <path d="M4 11h16M3 14h18M5 17h14" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.7"/>
+    `;
+
+    let body = cloud;
+    if (type === "sun") {
+      body = sun;
+    } else if (type === "partly") {
+      body = `<g opacity="0.95">${sun}</g>${cloud}`;
+    } else if (type === "fog") {
+      body = `${cloud}${fog}`;
+    } else if (type === "rain") {
+      body = `${cloud}${rainDrops}`;
+    } else if (type === "rain-heavy") {
+      body = `${cloud}${heavyRainDrops}`;
+    } else if (type === "sleet") {
+      body = `${cloud}${rainDrops}${snowFlakes}`;
+    } else if (type === "snow") {
+      body = `${cloud}${snowFlakes}`;
+    } else if (type === "snow-heavy") {
+      body = `${cloud}${snowFlakes}<path d="M18.5 19.2h2M19.5 18.2v2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.6"/>`;
+    } else if (type === "thunder") {
+      body = `${cloud}${thunder}`;
+    }
+
+    return `<svg viewBox="0 0 24 24" role="img" focusable="false">${body}</svg>`;
   }
 
   _symbolText(code) {
