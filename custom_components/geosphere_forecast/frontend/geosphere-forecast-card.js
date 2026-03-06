@@ -1,10 +1,11 @@
 class GeosphereForecastCard extends HTMLElement {
+  static DISPLAY_DAYS = 5;
+
   setConfig(config) {
     if (!config.entity) {
       throw new Error("You need to define an entity");
     }
     this._config = {
-      days: 7,
       ...config,
     };
   }
@@ -25,7 +26,9 @@ class GeosphereForecastCard extends HTMLElement {
     }
 
     const attrs = stateObj.attributes || {};
-    const daily = Array.isArray(attrs.daily) ? attrs.daily.slice(0, this._config.days) : [];
+    const daily = Array.isArray(attrs.daily)
+      ? attrs.daily.slice(0, GeosphereForecastCard.DISPLAY_DAYS)
+      : [];
     const locationName = attrs.location_name || "Unbekannt";
 
     if (!daily.length) {
@@ -64,23 +67,29 @@ class GeosphereForecastCard extends HTMLElement {
       <style>
         .geosphere-wrap { padding: 12px; }
         .location { font-weight: 600; font-size: 16px; margin-bottom: 10px; }
-        .days-grid { display: grid; grid-template-columns: repeat(7, minmax(110px, 1fr)); gap: 8px; }
+        .days-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
         .day-col {
           border: 1px solid var(--divider-color);
-          border-radius: 10px;
-          padding: 8px 6px;
+          border-radius: 8px;
+          padding: 6px 3px;
           text-align: center;
           background: var(--card-background-color);
         }
-        .day-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-        .weather-icon { --mdc-icon-size: 30px; color: var(--primary-color); margin-bottom: 4px; }
-        .temp-line { font-size: 14px; margin-bottom: 3px; }
-        .high { font-weight: 700; margin-right: 6px; }
+        .day-title { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
+        .weather-icon { --mdc-icon-size: 24px; color: var(--primary-color); margin-bottom: 3px; }
+        .temp-line { font-size: 12px; margin-bottom: 2px; white-space: nowrap; }
+        .high { font-weight: 700; margin-right: 4px; }
         .low { opacity: 0.8; }
-        .symbol-text { font-size: 11px; opacity: 0.8; line-height: 1.2; min-height: 28px; }
-        @media (max-width: 900px) {
-          .days-grid { display: flex; overflow-x: auto; gap: 8px; }
-          .day-col { min-width: 110px; flex: 0 0 110px; }
+        .symbol-text { font-size: 10px; opacity: 0.8; line-height: 1.2; min-height: 24px; }
+        @media (max-width: 420px) {
+          .geosphere-wrap { padding: 8px; }
+          .location { font-size: 14px; margin-bottom: 8px; }
+          .days-grid { gap: 3px; }
+          .day-col { padding: 5px 2px; }
+          .day-title { font-size: 10px; }
+          .weather-icon { --mdc-icon-size: 20px; }
+          .temp-line { font-size: 11px; }
+          .symbol-text { font-size: 9px; min-height: 20px; }
         }
       </style>
       <div class="geosphere-wrap">
@@ -102,9 +111,10 @@ class GeosphereForecastCard extends HTMLElement {
   }
 
   _symbolIcon(code) {
+    // Material Design icon set mapping (compact and consistent in HA cards)
     const map = {
       1: "mdi:weather-sunny",
-      2: "mdi:weather-sunny",
+      2: "mdi:weather-partly-cloudy",
       3: "mdi:weather-partly-cloudy",
       4: "mdi:weather-cloudy",
       5: "mdi:weather-cloudy",
@@ -180,7 +190,6 @@ class GeosphereForecastCard extends HTMLElement {
   static getStubConfig() {
     return {
       entity: "sensor.geosphere_forecast_forecast",
-      days: 7,
     };
   }
 }
