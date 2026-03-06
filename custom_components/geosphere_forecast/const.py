@@ -17,6 +17,8 @@ MIN_DAYS = 1
 MAX_DAYS = 10
 
 FORECAST_DAILY_URL = "https://www.geosphere.at/data/forecasts/daily"
+FORECAST_POINTS_URL = "https://www.geosphere.at/data/forecasts/points"
+FORECAST_FLEXI_URL_TEMPLATE = "https://www.geosphere.at/data/forecasts/flexi/{point_id}"
 
 CARD_URL_PATH = "/geosphere_forecast/geosphere-forecast-card.js"
 CARD_FILE_NAME = "geosphere-forecast-card.js"
