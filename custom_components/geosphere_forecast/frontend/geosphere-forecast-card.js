@@ -30,6 +30,7 @@ class GeosphereForecastCard extends HTMLElement {
       ? attrs.daily.slice(0, GeosphereForecastCard.DISPLAY_DAYS)
       : [];
     const locationName = attrs.location_name || "Unbekannt";
+    const updatedLabel = this._formatUpdated(attrs.last_updated);
 
     if (!daily.length) {
       this._content.innerHTML = `<div style="padding:12px;">Keine Vorhersagedaten verfuegbar.</div>`;
@@ -66,7 +67,9 @@ class GeosphereForecastCard extends HTMLElement {
     this._content.innerHTML = `
       <style>
         .geosphere-wrap { padding: 12px; }
-        .location { font-weight: 600; font-size: 16px; margin-bottom: 10px; }
+        .location-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+        .location { font-weight: 600; font-size: 16px; }
+        .updated { font-size: 11px; opacity: 0.8; text-align: right; white-space: nowrap; }
         .days-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
         .day-col {
           border: 1px solid var(--divider-color);
@@ -94,7 +97,9 @@ class GeosphereForecastCard extends HTMLElement {
         .symbol-text { font-size: 10px; opacity: 0.8; line-height: 1.2; min-height: 24px; }
         @media (max-width: 420px) {
           .geosphere-wrap { padding: 8px; }
-          .location { font-size: 14px; margin-bottom: 8px; }
+          .location-row { margin-bottom: 8px; }
+          .location { font-size: 14px; }
+          .updated { font-size: 10px; }
           .days-grid { gap: 3px; }
           .day-col { padding: 5px 2px; }
           .day-title { font-size: 10px; }
@@ -104,7 +109,10 @@ class GeosphereForecastCard extends HTMLElement {
         }
       </style>
       <div class="geosphere-wrap">
-        <div class="location">${locationName}</div>
+        <div class="location-row">
+          <div class="location">${locationName}</div>
+          <div class="updated">${updatedLabel}</div>
+        </div>
         <div class="days-grid">${daysHtml}</div>
       </div>
     `;
@@ -115,6 +123,22 @@ class GeosphereForecastCard extends HTMLElement {
       return "-";
     }
     return `${Math.round(Number(value))}°C`;
+  }
+
+  _formatUpdated(value) {
+    if (!value) {
+      return "Aktualisiert: -";
+    }
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) {
+      return "Aktualisiert: -";
+    }
+    const dd = String(dt.getDate()).padStart(2, "0");
+    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+    const yy = String(dt.getFullYear()).slice(-2);
+    const hh = String(dt.getHours()).padStart(2, "0");
+    const min = String(dt.getMinutes()).padStart(2, "0");
+    return `Aktualisiert ${dd}.${mm}.${yy} um ${hh}:${min} Uhr`;
   }
 
   getCardSize() {
@@ -144,7 +168,7 @@ class GeosphereForecastCard extends HTMLElement {
     const cFog = "#ffffff";
     const cStroke = "#6f7680";
     const cBolt = "#ffd54f";
-    const cSnow = "#dfe7ef";
+    const cSnow = "#ffffff";
 
     const sun = `
       <circle cx="12" cy="10.5" r="4.3" fill="${cSun}" stroke="#d6a72a" stroke-width="0.8"/>
@@ -168,8 +192,8 @@ class GeosphereForecastCard extends HTMLElement {
       <ellipse cx="18.5" cy="21.2" rx="1.1" ry="1.8" fill="${cRain}"/>
     `;
     const snowFlakes = `
-      <circle cx="10" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>
-      <circle cx="15.5" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>
+      <circle cx="10" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>
+      <circle cx="15.5" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>
     `;
     const thunder = `
       <path d="M13.6 14.2h-2.2l1-3.3-2.8 4.5h2.2l-.9 3 2.7-4.2Z" fill="${cBolt}" stroke="#d6ad2d" stroke-linejoin="round" stroke-width="0.9"/>
@@ -194,7 +218,7 @@ class GeosphereForecastCard extends HTMLElement {
     } else if (type === "snow") {
       body = `${cloud}${snowFlakes}`;
     } else if (type === "snow-heavy") {
-      body = `${cloud}${snowFlakes}<circle cx="20" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>`;
+      body = `${cloud}${snowFlakes}<circle cx="20" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>`;
     } else if (type === "thunder") {
       body = `${cloudDark}${thunder}`;
     }
