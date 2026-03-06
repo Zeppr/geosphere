@@ -41,7 +41,7 @@ class GeosphereForecastCard extends HTMLElement {
       .map((day) => {
         const date = day.datetime
           ? new Date(day.datetime).toLocaleDateString("de-AT", {
-              weekday: "long",
+              weekday: "short",
             })
           : "-";
 
@@ -80,35 +80,35 @@ class GeosphereForecastCard extends HTMLElement {
           text-align: center;
           background: var(--card-background-color);
         }
-        .day-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; color: var(--primary-text-color); }
+        .day-title { font-size: 11px; font-weight: 600; margin-bottom: 2px; color: var(--primary-text-color); text-transform: capitalize; }
         .weather-icon {
-          width: 56px;
-          height: 56px;
+          width: 38px;
+          height: 38px;
           margin: 0 auto 2px;
           color: var(--primary-color);
         }
         .weather-icon svg {
-          width: 56px;
-          height: 56px;
+          width: 38px;
+          height: 38px;
           display: block;
           overflow: visible;
         }
         .temp-line {
-          font-size: 33px;
-          font-weight: 500;
-          line-height: 1;
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.2;
           margin-bottom: 4px;
           white-space: nowrap;
-          letter-spacing: -0.5px;
+          letter-spacing: 0;
           color: var(--primary-text-color);
         }
-        .high { font-weight: 500; }
-        .low { font-weight: 500; }
-        .temp-sep { color: #a8c319; margin: 0 6px; font-size: 28px; position: relative; top: -1px; }
+        .high { font-weight: 700; }
+        .low { font-weight: 700; }
+        .temp-sep { color: #a8c319; margin: 0 5px; font-size: 12px; }
         .rain-line {
-          min-height: 20px;
-          font-size: 31px;
-          line-height: 1;
+          min-height: 14px;
+          font-size: 11px;
+          line-height: 1.2;
           font-weight: 500;
           color: var(--primary-text-color);
           white-space: nowrap;
@@ -127,11 +127,11 @@ class GeosphereForecastCard extends HTMLElement {
           .updated { font-size: 10px; }
           .days-grid { gap: 3px; }
           .day-col { padding: 5px 2px; }
-          .day-title { font-size: 11px; }
-          .weather-icon, .weather-icon svg { width: 40px; height: 40px; }
-          .temp-line { font-size: 24px; }
-          .temp-sep { font-size: 20px; margin: 0 4px; }
-          .rain-line { font-size: 22px; min-height: 16px; gap: 4px; }
+          .day-title { font-size: 10px; }
+          .weather-icon, .weather-icon svg { width: 30px; height: 30px; }
+          .temp-line { font-size: 11px; }
+          .temp-sep { font-size: 11px; margin: 0 3px; }
+          .rain-line { font-size: 10px; min-height: 12px; gap: 4px; }
           .rain-drop, .rain-drop svg { width: 12px; height: 12px; }
         }
       </style>
@@ -149,7 +149,7 @@ class GeosphereForecastCard extends HTMLElement {
     if (value === null || value === undefined || Number.isNaN(Number(value))) {
       return "-";
     }
-    return `${Math.round(Number(value))}°`;
+    return `${Math.round(Number(value))}°C`;
   }
 
   _formatRain(value) {
@@ -183,24 +183,46 @@ class GeosphereForecastCard extends HTMLElement {
     return 5;
   }
 
-  _symbolType(code) {
-    if ([1].includes(code)) return "sun-clear";
-    if ([2].includes(code)) return "sun-mostly-clear";
-    if ([3].includes(code)) return "sun-partly-cloudy";
-    if ([4].includes(code)) return "sun-mostly-cloudy";
-    if ([5].includes(code)) return "cloud-overcast";
-    if ([6, 7].includes(code)) return "fog";
-    if ([8, 9, 17, 18].includes(code)) return "rain";
-    if ([10, 19].includes(code)) return "rain-heavy";
-    if ([11, 12, 13, 20, 21, 22].includes(code)) return "sleet";
-    if ([14, 23, 24].includes(code)) return "snow";
-    if ([15, 16, 25].includes(code)) return "snow-heavy";
-    if ([26, 27, 28, 29, 30, 31, 32].includes(code)) return "thunder";
-    return "cloud";
+  _symbolVariant(code) {
+    const map = {
+      1: "sun-clear",
+      2: "sun-mostly-clear",
+      3: "sun-partly-cloudy",
+      4: "sun-mostly-cloudy",
+      5: "cloud-overcast",
+      6: "fog-ground",
+      7: "fog-high",
+      8: "rain-light",
+      9: "rain-moderate",
+      10: "rain-heavy",
+      11: "sleet-light",
+      12: "sleet-moderate",
+      13: "sleet-heavy",
+      14: "snow-light",
+      15: "snow-moderate",
+      16: "snow-heavy",
+      17: "shower-light",
+      18: "shower-moderate",
+      19: "shower-heavy",
+      20: "sleet-shower-light",
+      21: "sleet-shower-moderate",
+      22: "sleet-shower-heavy",
+      23: "snow-shower-light",
+      24: "snow-shower-moderate",
+      25: "snow-shower-heavy",
+      26: "thunder-light",
+      27: "thunder-moderate",
+      28: "thunder-heavy",
+      29: "thunder-sleet-light",
+      30: "thunder-sleet-heavy",
+      31: "thunder-snow-light",
+      32: "thunder-snow-heavy",
+    };
+    return map[code] || "cloud-overcast";
   }
 
   _symbolSvg(code) {
-    const type = this._symbolType(code);
+    const variant = this._symbolVariant(code);
     const cSun = "#f6c443";
     const cCloud = "#9fa4ab";
     const cCloudDark = "#5f646b";
@@ -229,53 +251,94 @@ class GeosphereForecastCard extends HTMLElement {
     const cloudDark = `
       <path d="M7.1 18h10.2a3.8 3.8 0 0 0 0-7.6h-.2a4.9 4.9 0 0 0-9.4-1.3 3.8 3.8 0 1 0-.6 7.6Z" fill="${cCloudDark}" stroke="#4b4f55" stroke-linejoin="round" stroke-width="1"/>
     `;
-    const rainDrops = `
-      <ellipse cx="9" cy="21" rx="1.1" ry="1.7" fill="${cRain}"/>
-      <ellipse cx="13" cy="21.2" rx="1.1" ry="1.7" fill="${cRain}"/>
-      <ellipse cx="17" cy="21" rx="1.1" ry="1.7" fill="${cRain}"/>
-    `;
-    const heavyRainDrops = `
-      <ellipse cx="8" cy="21" rx="1.1" ry="1.8" fill="${cRain}"/>
-      <ellipse cx="11.5" cy="21.2" rx="1.1" ry="1.8" fill="${cRain}"/>
-      <ellipse cx="15" cy="21" rx="1.1" ry="1.8" fill="${cRain}"/>
-      <ellipse cx="18.5" cy="21.2" rx="1.1" ry="1.8" fill="${cRain}"/>
-    `;
-    const snowFlakes = `
-      <circle cx="10" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>
-      <circle cx="15.5" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>
-    `;
+    const rain = (count) =>
+      Array.from({ length: count }, (_, i) => {
+        const x = 8 + i * 3.2;
+        return `<ellipse cx="${x}" cy="21" rx="1" ry="1.6" fill="${cRain}"/>`;
+      }).join("");
+    const snow = (count) =>
+      Array.from({ length: count }, (_, i) => {
+        const x = 9 + i * 3.3;
+        return `<circle cx="${x}" cy="21" r="1.05" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>`;
+      }).join("");
     const thunder = `
       <path d="M13.6 14.2h-2.2l1-3.3-2.8 4.5h2.2l-.9 3 2.7-4.2Z" fill="${cBolt}" stroke="#d6ad2d" stroke-linejoin="round" stroke-width="0.9"/>
     `;
-    const fog = `
+    const thunder2 = `
+      <path d="M11.2 14.2H9l1-3.3-2.8 4.5h2.2l-.9 3 2.7-4.2Z" fill="${cBolt}" stroke="#d6ad2d" stroke-linejoin="round" stroke-width="0.9"/>
+    `;
+    const fogGround = `
       <path d="M4.5 10.8h15M3.5 13.7h17M5 16.6h14" fill="none" stroke="${cFog}" stroke-linecap="round" stroke-width="1.8"/>
+    `;
+    const fogHigh = `
+      <path d="M5.8 9.8h12.4M4.8 12.7h14.4M6.2 15.6h11.6" fill="none" stroke="${cFog}" stroke-linecap="round" stroke-width="1.4"/>
     `;
 
     let body = cloudMedium;
-    if (type === "sun-clear") {
+    if (variant === "sun-clear") {
       body = sun;
-    } else if (type === "sun-mostly-clear") {
+    } else if (variant === "sun-mostly-clear") {
       body = `<g opacity="0.98">${sun}</g>${cloudSmall}`;
-    } else if (type === "sun-partly-cloudy") {
+    } else if (variant === "sun-partly-cloudy") {
       body = `<g opacity="0.97">${sun}</g>${cloudMedium}`;
-    } else if (type === "sun-mostly-cloudy") {
+    } else if (variant === "sun-mostly-cloudy") {
       body = `<g opacity="0.92">${sun}</g>${cloudLarge}`;
-    } else if (type === "cloud-overcast") {
+    } else if (variant === "cloud-overcast") {
       body = cloudOvercast;
-    } else if (type === "fog") {
-      body = `${cloudOvercast}${fog}`;
-    } else if (type === "rain") {
-      body = `${cloudLarge}${rainDrops}`;
-    } else if (type === "rain-heavy") {
-      body = `${cloudOvercast}${heavyRainDrops}`;
-    } else if (type === "sleet") {
-      body = `${cloudLarge}${rainDrops}${snowFlakes}`;
-    } else if (type === "snow") {
-      body = `${cloudLarge}${snowFlakes}`;
-    } else if (type === "snow-heavy") {
-      body = `${cloudOvercast}${snowFlakes}<circle cx="20" cy="21" r="1.1" fill="${cSnow}" stroke="#e8edf3" stroke-width="0.6"/>`;
-    } else if (type === "thunder") {
-      body = `${cloudDark}${thunder}`;
+    } else if (variant === "fog-ground") {
+      body = `${cloudOvercast}${fogGround}`;
+    } else if (variant === "fog-high") {
+      body = `${cloudLarge}${fogHigh}`;
+    } else if (variant === "rain-light") {
+      body = `${cloudLarge}${rain(2)}`;
+    } else if (variant === "rain-moderate") {
+      body = `${cloudLarge}${rain(3)}`;
+    } else if (variant === "rain-heavy") {
+      body = `${cloudOvercast}${rain(4)}`;
+    } else if (variant === "sleet-light") {
+      body = `${cloudLarge}${rain(1)}${snow(1)}`;
+    } else if (variant === "sleet-moderate") {
+      body = `${cloudLarge}${rain(2)}${snow(2)}`;
+    } else if (variant === "sleet-heavy") {
+      body = `${cloudOvercast}${rain(3)}${snow(2)}`;
+    } else if (variant === "snow-light") {
+      body = `${cloudLarge}${snow(2)}`;
+    } else if (variant === "snow-moderate") {
+      body = `${cloudLarge}${snow(3)}`;
+    } else if (variant === "snow-heavy") {
+      body = `${cloudOvercast}${snow(4)}`;
+    } else if (variant === "shower-light") {
+      body = `<g opacity="0.95">${sun}</g>${cloudMedium}${rain(2)}`;
+    } else if (variant === "shower-moderate") {
+      body = `<g opacity="0.9">${sun}</g>${cloudLarge}${rain(3)}`;
+    } else if (variant === "shower-heavy") {
+      body = `${cloudOvercast}${rain(4)}`;
+    } else if (variant === "sleet-shower-light") {
+      body = `<g opacity="0.95">${sun}</g>${cloudMedium}${rain(1)}${snow(1)}`;
+    } else if (variant === "sleet-shower-moderate") {
+      body = `<g opacity="0.9">${sun}</g>${cloudLarge}${rain(2)}${snow(2)}`;
+    } else if (variant === "sleet-shower-heavy") {
+      body = `${cloudOvercast}${rain(3)}${snow(3)}`;
+    } else if (variant === "snow-shower-light") {
+      body = `<g opacity="0.95">${sun}</g>${cloudMedium}${snow(2)}`;
+    } else if (variant === "snow-shower-moderate") {
+      body = `<g opacity="0.9">${sun}</g>${cloudLarge}${snow(3)}`;
+    } else if (variant === "snow-shower-heavy") {
+      body = `${cloudOvercast}${snow(4)}`;
+    } else if (variant === "thunder-light") {
+      body = `${cloudDark}${rain(2)}${thunder}`;
+    } else if (variant === "thunder-moderate") {
+      body = `${cloudDark}${rain(3)}${thunder}`;
+    } else if (variant === "thunder-heavy") {
+      body = `${cloudDark}${rain(4)}${thunder}${thunder2}`;
+    } else if (variant === "thunder-sleet-light") {
+      body = `${cloudDark}${rain(1)}${snow(1)}${thunder}`;
+    } else if (variant === "thunder-sleet-heavy") {
+      body = `${cloudDark}${rain(3)}${snow(2)}${thunder}${thunder2}`;
+    } else if (variant === "thunder-snow-light") {
+      body = `${cloudDark}${snow(2)}${thunder}`;
+    } else if (variant === "thunder-snow-heavy") {
+      body = `${cloudDark}${snow(4)}${thunder}${thunder2}`;
     }
 
     return `<svg viewBox="0 0 24 24" role="img" focusable="false">${body}</svg>`;
