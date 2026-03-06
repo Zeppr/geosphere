@@ -77,14 +77,14 @@ class GeosphereForecastCard extends HTMLElement {
         }
         .day-title { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
         .weather-icon {
-          width: 24px;
-          height: 24px;
+          width: 30px;
+          height: 30px;
           margin: 0 auto 3px;
           color: var(--primary-color);
         }
         .weather-icon svg {
-          width: 24px;
-          height: 24px;
+          width: 30px;
+          height: 30px;
           display: block;
           overflow: visible;
         }
@@ -98,7 +98,7 @@ class GeosphereForecastCard extends HTMLElement {
           .days-grid { gap: 3px; }
           .day-col { padding: 5px 2px; }
           .day-title { font-size: 10px; }
-          .weather-icon, .weather-icon svg { width: 20px; height: 20px; }
+          .weather-icon, .weather-icon svg { width: 24px; height: 24px; }
           .temp-line { font-size: 11px; }
           .symbol-text { font-size: 9px; min-height: 20px; }
         }
@@ -137,28 +137,45 @@ class GeosphereForecastCard extends HTMLElement {
 
   _symbolSvg(code) {
     const type = this._symbolType(code);
-    const stroke = "currentColor";
+    const cSun = "#f6c443";
+    const cCloud = "#9fa4ab";
+    const cCloudDark = "#5f646b";
+    const cRain = "#7fc8ff";
+    const cFog = "#ffffff";
+    const cStroke = "#6f7680";
+    const cBolt = "#ffd54f";
+    const cSnow = "#dfe7ef";
+
     const sun = `
-      <circle cx="12" cy="12" r="4.2" fill="none" stroke="${stroke}" stroke-width="1.8"/>
-      <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+      <circle cx="12" cy="10.5" r="4.3" fill="${cSun}" stroke="#d6a72a" stroke-width="0.8"/>
+      <path d="M12 2.4v2.3M12 16.4v2.3M4 10.5h2.3M17.7 10.5H20M6.1 4.6l1.6 1.6M16.3 14.8l1.6 1.6M6.1 16.4l1.6-1.6M16.3 6.2l1.6-1.6" fill="none" stroke="${cSun}" stroke-linecap="round" stroke-width="1.6"/>
     `;
     const cloud = `
-      <path d="M7.2 17.5h9.7a3.4 3.4 0 0 0 .2-6.8 4.8 4.8 0 0 0-9.3-1.4 3 3 0 0 0-.6 0 3.6 3.6 0 1 0 0 7.2Z" fill="none" stroke="${stroke}" stroke-linejoin="round" stroke-width="1.8"/>
+      <path d="M7.1 18h10.2a3.8 3.8 0 0 0 0-7.6h-.2a4.9 4.9 0 0 0-9.4-1.3 3.8 3.8 0 1 0-.6 7.6Z" fill="${cCloud}" stroke="${cStroke}" stroke-linejoin="round" stroke-width="1"/>
+    `;
+    const cloudDark = `
+      <path d="M7.1 18h10.2a3.8 3.8 0 0 0 0-7.6h-.2a4.9 4.9 0 0 0-9.4-1.3 3.8 3.8 0 1 0-.6 7.6Z" fill="${cCloudDark}" stroke="#4b4f55" stroke-linejoin="round" stroke-width="1"/>
     `;
     const rainDrops = `
-      <path d="M9 19.2l-1 2M13 19.2l-1 2M17 19.2l-1 2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+      <ellipse cx="9" cy="21" rx="1.1" ry="1.7" fill="${cRain}"/>
+      <ellipse cx="13" cy="21.2" rx="1.1" ry="1.7" fill="${cRain}"/>
+      <ellipse cx="17" cy="21" rx="1.1" ry="1.7" fill="${cRain}"/>
     `;
     const heavyRainDrops = `
-      <path d="M8 18.8l-1.2 2.8M12 18.8l-1.2 2.8M16 18.8l-1.2 2.8M20 18.8l-1.2 2.8" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.8"/>
+      <ellipse cx="8" cy="21" rx="1.1" ry="1.8" fill="${cRain}"/>
+      <ellipse cx="11.5" cy="21.2" rx="1.1" ry="1.8" fill="${cRain}"/>
+      <ellipse cx="15" cy="21" rx="1.1" ry="1.8" fill="${cRain}"/>
+      <ellipse cx="18.5" cy="21.2" rx="1.1" ry="1.8" fill="${cRain}"/>
     `;
     const snowFlakes = `
-      <path d="M9 20.2h2M10 19.2v2M14.5 20.2h2M15.5 19.2v2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.6"/>
+      <circle cx="10" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>
+      <circle cx="15.5" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>
     `;
     const thunder = `
-      <path d="M13.6 14.5h-2.2l1-3.3-2.8 4.5h2.2l-.9 2.8 2.7-4Z" fill="none" stroke="${stroke}" stroke-linejoin="round" stroke-width="1.8"/>
+      <path d="M13.6 14.2h-2.2l1-3.3-2.8 4.5h2.2l-.9 3 2.7-4.2Z" fill="${cBolt}" stroke="#d6ad2d" stroke-linejoin="round" stroke-width="0.9"/>
     `;
     const fog = `
-      <path d="M4 11h16M3 14h18M5 17h14" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.7"/>
+      <path d="M4.5 10.8h15M3.5 13.7h17M5 16.6h14" fill="none" stroke="${cFog}" stroke-linecap="round" stroke-width="1.8"/>
     `;
 
     let body = cloud;
@@ -177,9 +194,9 @@ class GeosphereForecastCard extends HTMLElement {
     } else if (type === "snow") {
       body = `${cloud}${snowFlakes}`;
     } else if (type === "snow-heavy") {
-      body = `${cloud}${snowFlakes}<path d="M18.5 19.2h2M19.5 18.2v2" fill="none" stroke="${stroke}" stroke-linecap="round" stroke-width="1.6"/>`;
+      body = `${cloud}${snowFlakes}<circle cx="20" cy="21" r="1.1" fill="${cSnow}" stroke="#c8d1da" stroke-width="0.6"/>`;
     } else if (type === "thunder") {
-      body = `${cloud}${thunder}`;
+      body = `${cloudDark}${thunder}`;
     }
 
     return `<svg viewBox="0 0 24 24" role="img" focusable="false">${body}</svg>`;
